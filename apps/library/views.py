@@ -1,3 +1,10 @@
 from django.shortcuts import render
+from django.http import HttpResponse
+from apps.library.models import BookModel
 
-# Create your views here.
+
+def index(request):
+    books = BookModel.objects.earliest()
+    return HttpResponse('Hello')
+
+

@@ -3,10 +3,15 @@
 
     python manage.py seed_library          — добавить данные
     python manage.py seed_library --clear  — удалить старые данные и заполнить заново
+
+Пароль всех тестовых пользователей: password123
 """
 import random
+import uuid
 from datetime import timedelta
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -20,13 +25,14 @@ from apps.library.models import (
     CategoryModel,
     GenreModel,
     LibraryModel,
-    MemberModel,
     PostModel,
     Publisher,
 )
 from apps.library.models.choices import Gender, MemberRole
 
 fake = Faker('ru_RU')
+User = get_user_model()  # актуальная модель пользователя из settings.AUTH_USER_MODEL
+TEST_PASSWORD = 'password123'
 
 
 class Command(BaseCommand):
@@ -52,8 +58,9 @@ class Command(BaseCommand):
         ]
         self.stdout.write(self.style.SUCCESS(f'Publishers: {len(publishers)} created'))
 
+        # get_or_create: названия уникальны, при повторном запуске без --clear берём существующие
         categories = [
-            CategoryModel.objects.create(name=name, slug=slug, position=i)
+            CategoryModel.objects.get_or_create(name=name, slug=slug, defaults={'position': i})[0]
             for i, (name, slug) in enumerate([
                 ('Классика', 'classic'),
                 ('Для детей', 'kids'),
@@ -63,17 +70,17 @@ class Command(BaseCommand):
                 ('Фантастика', 'fiction'),
             ])
         ]
-        self.stdout.write(self.style.SUCCESS(f'Categories: {len(categories)} created'))
+        self.stdout.write(self.style.SUCCESS(f'Categories: {len(categories)} ready'))
 
-        detective = GenreModel.objects.create(name='Детектив', position=1)
-        fantasy = GenreModel.objects.create(name='Фантастика', position=2)
+        detective, _ = GenreModel.objects.get_or_create(name='Детектив', defaults={'position': 1})
+        fantasy, _ = GenreModel.objects.get_or_create(name='Фантастика', defaults={'position': 2})
         genres = [
             detective,
             fantasy,
-            GenreModel.objects.create(name='Психологический детектив', parent=detective, position=1),
-            GenreModel.objects.create(name='Киберпанк', parent=fantasy, position=1),
+            GenreModel.objects.get_or_create(name='Психологический детектив', defaults={'parent': detective})[0],
+            GenreModel.objects.get_or_create(name='Киберпанк', defaults={'parent': fantasy})[0],
         ]
-        self.stdout.write(self.style.SUCCESS(f'Genres: {len(genres)} created'))
+        self.stdout.write(self.style.SUCCESS(f'Genres: {len(genres)} ready'))
 
         libraries = [
             LibraryModel.objects.create(
@@ -119,27 +126,41 @@ class Command(BaseCommand):
             books.append(book)
         self.stdout.write(self.style.SUCCESS(f'Books: {len(books)} created'))
 
-        # 4. Участники
-        members = []
+        # 4. Роли — группы Django. Названия берём из MemberRole: admin, reader, staff
+        groups = {
+            role: Group.objects.get_or_create(name=role.label)[0]
+            for role in MemberRole
+        }
+        self.stdout.write(self.style.SUCCESS(f'Groups: {", ".join(g.name for g in groups.values())}'))
+
+        # 5. Пользователи
+        users = []
         for _ in range(30):
-            member = MemberModel.objects.create(
+            username = f'user_{uuid.uuid4().hex[:8]}'   # username и email уникальны
+            role = random.choices(
+                [MemberRole.READER, MemberRole.STAFF, MemberRole.ADMIN],
+                weights=[85, 12, 3],
+            )[0]
+            user = User.objects.create_user(             # create_user хэширует пароль
+                username=username,
+                email=f'{username}@example.com',
+                password=TEST_PASSWORD,
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
-                email=fake.email(),
                 gender=random.choice(Gender.values),
                 birth_date=fake.date_of_birth(minimum_age=7, maximum_age=80),
-                role=random.choice(MemberRole.values),
+                is_staff=role != MemberRole.READER,      # вход в админку только для сотрудников
             )
-            member.libraries.add(random.choice(libraries))
-            members.append(member)
-        self.stdout.write(self.style.SUCCESS(f'Members: {len(members)} created'))
+            user.groups.add(groups[role])
+            users.append(user)
+        self.stdout.write(self.style.SUCCESS(f'Users: {len(users)} created (password: {TEST_PASSWORD})'))
 
-        # 5. Посты
+        # 6. Посты
         posts = [
             PostModel.objects.create(
                 title=fake.sentence(nb_words=5)[:100],
                 body=fake.text(),
-                author=random.choice(members),
+                author=random.choice(users),
                 library=random.choice(libraries),
                 is_moderate=random.choice([True, False]),
             )
@@ -147,7 +168,7 @@ class Command(BaseCommand):
         ]
         self.stdout.write(self.style.SUCCESS(f'Posts: {len(posts)} created'))
 
-        # 6. Выдачи: часть уже вернули, часть ещё на руках
+        # 7. Выдачи: часть уже вернули, часть ещё на руках
         today = timezone.localdate()
         borrows = []
         for _ in range(50):
@@ -157,7 +178,7 @@ class Command(BaseCommand):
             if due_date < today and random.choice([True, False]):
                 returned_date = due_date
             borrows.append(BorrowModel.objects.create(
-                member=random.choice(members),
+                member=random.choice(users),
                 book=random.choice(books),
                 library=random.choice(libraries),
                 borrow_date=borrow_date,
@@ -172,7 +193,7 @@ class Command(BaseCommand):
         PostModel.objects.all().delete()
         BookModel.objects.all().delete()        # вместе с ним удалятся BookAuthorModel
         AuthorModel.objects.all().delete()      # вместе с ним удалятся AuthorDetailModel
-        MemberModel.objects.all().delete()
+        User.objects.filter(is_superuser=False).delete()   # суперпользователя не трогаем
         GenreModel.objects.filter(parent__isnull=False).delete()  # сначала поджанры
         GenreModel.objects.all().delete()
         CategoryModel.objects.all().delete()

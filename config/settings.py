@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'apps.base.apps.BaseConfig',
     'apps.library.apps.LibraryConfig',
+    'apps.users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -102,6 +103,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+AUTH_USER_MODEL = 'users.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/

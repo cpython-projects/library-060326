@@ -1,8 +1,7 @@
 from django.db import models
-
+from django.conf import settings
 from apps.base.models import TimeStampModel
 from .libraries import LibraryModel
-from .members import MemberModel
 
 
 class PostModel(TimeStampModel):
@@ -10,7 +9,7 @@ class PostModel(TimeStampModel):
     body = models.TextField()
 
     author = models.ForeignKey(
-        MemberModel,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='posts',
     )

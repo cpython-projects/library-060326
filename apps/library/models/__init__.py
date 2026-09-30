@@ -8,7 +8,6 @@ from .genres import GenreModel
 from .publishers import Publisher
 from .libraries import LibraryModel
 from .books import BookModel, BookAuthorModel
-from .members import MemberModel
 from .posts import PostModel
 from .borrows import BorrowModel
 
@@ -21,7 +20,6 @@ __all__ = [
     'LibraryModel',
     'BookModel',
     'BookAuthorModel',
-    'MemberModel',
     'PostModel',
     'BorrowModel',
 ]

@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.base.models import TimeStampModel, UUIDModel
 from .authors import AuthorModel
@@ -35,7 +36,28 @@ class BookModel(UUIDModel, TimeStampModel):
     page_count = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     def __str__(self):
-        return self.title
+        return f'{self.title}'
+
+    class Meta:
+        db_table = 'books'
+        ordering = ['page_count', '-published_date'] # - - DESC 10...1
+        verbose_name = _('Book')
+        verbose_name_plural = _('Books')
+        get_latest_by = 'published_date'
+        # indexes = [
+        #     models.Index(fields=['published_date', 'category'], name='books_published_date_idx'),
+        #     models.Index(fields=['-published_date'], name='books_published_date_idx'),
+        # ]
+        # constraints = [
+        #     models.UniqueConstraint(
+        #         fields=['title', 'authors', 'category'],
+        #         name='unique_category_title'
+        #     ),
+        #     models.CheckConstraint(
+        #         condition=models.Q(page_count__gt=0),
+        #         name='page_count_gt_0'
+        #     )
+        # ]
 
 
 class BookAuthorModel(models.Model):
