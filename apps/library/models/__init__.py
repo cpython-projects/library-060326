@@ -10,6 +10,7 @@ from .libraries import LibraryModel
 from .books import BookModel, BookAuthorModel
 from .posts import PostModel
 from .borrows import BorrowModel
+from .choices import MemberRole
 
 __all__ = [
     'AuthorModel',
@@ -22,4 +23,5 @@ __all__ = [
     'BookAuthorModel',
     'PostModel',
     'BorrowModel',
+    'MemberRole',
 ]

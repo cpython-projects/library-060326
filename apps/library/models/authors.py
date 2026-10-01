@@ -19,6 +19,9 @@ class AuthorModel(UUIDModel, TimeStampModel, SoftDeleteModel):
         validators=[MinValueValidator(1), MaxValueValidator(5)],
     )
 
+    class Meta:
+        ordering = ('first_name', 'last_name')
+
     def __str__(self):
         return (f'{self.last_name} {self.first_name[0]}.,'
                 f' {self.birth_date} - {self.death_date if self.death_date else ""}')

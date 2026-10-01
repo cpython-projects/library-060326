@@ -40,7 +40,7 @@ class BookModel(UUIDModel, TimeStampModel):
 
     class Meta:
         db_table = 'books'
-        ordering = ['page_count', '-published_date'] # - - DESC 10...1
+        ordering = ['published_date'] # - - DESC 10...1
         verbose_name = _('Book')
         verbose_name_plural = _('Books')
         get_latest_by = 'published_date'
@@ -85,3 +85,4 @@ class BookAuthorModel(models.Model):
 
     def __str__(self):
         return f'{self.book} {self.author} {self.role}'
+
