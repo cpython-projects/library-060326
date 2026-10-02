@@ -79,8 +79,85 @@ from apps.library.models import BookModel, CategoryModel, AuthorModel, MemberRol
 # print(AuthorModel.objects.count())
 # print(BookModel.objects.exists())
 
-query = BookModel.objects.values('title', 'published_date', 'category')
-for row in query:
-    print(type(row))
-    print(f"Название: {row['title']}, дата: {row['published_date']}, {row['category']}")
+# query = BookModel.objects.values('title', 'published_date', 'category')
+# for row in query:
+#     print(type(row))
+#     print(f"Название: {row['title']}, дата: {row['published_date']}, {row['category']}")
+
+# books = BookModel.objects.filter(page_count__gt=300, published_date__lt=date(1950, 1, 1))
+# print(books)
+#
+# books = BookModel.objects.filter(title__exact='The Great Gatsby')   # с учетом регистра
+# print(books)
+# books = BookModel.objects.filter(title__iexact='the great gatsby')  # без
+# print(books)
+#
+# books = BookModel.objects.filter(title__contains='python')
+# print(books)
+# books = BookModel.objects.filter(title__icontains='python')
+# print(books)
+
+# books = BookModel.objects.filter(title__startswith='py')
+# print(books)
+# books = BookModel.objects.filter(title__istartswith='py')
+# print(books)
+# books = BookModel.objects.filter(title__endswith='ON')
+# print(books)
+# books = BookModel.objects.filter(title__iendswith='ON')
+# print(books)
+
+#
+# books = BookModel.objects.filter(pk__in=[1, 2, 3])
+# print(books)
+# books = BookModel.objects.filter(category__slug__in=['classic', 'it'])
+# print(books)
+#
+# books = BookModel.objects.filter(published_date__gt=date(2000, 1, 1))
+# print(books)
+
+# books = BookModel.objects.filter(published_date__year=2025)
+# print(books)
+#
+# books = BookModel.objects.filter(page_count__range=(100, 300))
+# print(books)
+
+# book = BookModel.objects.filter(category__isnull=False).count()
+# print(book)
+
+from django.db.models import Q
+
+# books = BookModel.objects.filter(Q(page_count__range=(100, 300)) | Q(category__isnull=False))
+# print(books)
+# books = BookModel.objects.filter(Q(page_count__range=(100, 300)) & Q(category__isnull=False))
+# books = BookModel.objects.filter(page_count__range=(100, 300), category__isnull=False)
+# books = BookModel.objects.filter(page_count__range=(100, 300)).filter(category__isnull=False)
+#
+# books = BookModel.objects.filter(~Q(category__slug='classic'))
+# import uuid
+# ids = uuid.uuid4(), uuid.uuid4()
+# print(ids)
+# books = BookModel.objects.filter(~Q(pk__in=ids))
+# print(books)
+#
+#
+# books = BookModel.objects.filter(
+#     ~Q(category__slug__in=['classic', 'it']) & Q(page_count__gt=300)
+# )
+#
+# print(books)
+
+
+query = Q()
+title = 'Python'
+page_count = None
+if title:
+    query &= Q(title__icontains=title)
+if page_count:
+    query &= Q(page__gte=page_count)
+
+books = BookModel.objects.filter(query)
+for book in books:
+
+
+
 
