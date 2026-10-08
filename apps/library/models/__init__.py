@@ -5,7 +5,7 @@
 from .authors import AuthorModel, AuthorDetailModel
 from .categories import CategoryModel
 from .genres import GenreModel
-from .publishers import Publisher
+from .publishers import PublisherModel
 from .libraries import LibraryModel
 from .books import BookModel, BookAuthorModel
 from .posts import PostModel
@@ -17,7 +17,7 @@ __all__ = [
     'AuthorDetailModel',
     'CategoryModel',
     'GenreModel',
-    'Publisher',
+    'PublisherModel',
     'LibraryModel',
     'BookModel',
     'BookAuthorModel',

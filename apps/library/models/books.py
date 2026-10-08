@@ -6,7 +6,7 @@ from apps.base.models import TimeStampModel, UUIDModel
 from .authors import AuthorModel
 from .categories import CategoryModel
 from .genres import GenreModel
-from .publishers import Publisher
+from .publishers import PublisherModel
 
 
 class BookModel(UUIDModel, TimeStampModel):
@@ -26,7 +26,7 @@ class BookModel(UUIDModel, TimeStampModel):
         related_name='books'
     )
     publisher = models.ForeignKey(
-        Publisher,
+        PublisherModel,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -34,6 +34,7 @@ class BookModel(UUIDModel, TimeStampModel):
     )
     summary = models.TextField()
     page_count = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+    cover = models.ImageField(upload_to='books/covers/', blank=True)
 
     def __str__(self):
         return f'{self.title}'
