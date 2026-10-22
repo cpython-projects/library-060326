@@ -26,7 +26,7 @@ class BookListCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BookModel
-        fields = ['title', 'category', 'pages']
+        fields = ['title', 'category', 'pages', 'published_date']
 
     def create(self, validated_data):
         title_data = validated_data.pop('title').strip().upper()

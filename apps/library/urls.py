@@ -13,3 +13,5 @@ urlpatterns = [
     path('books/', BookListCreateAPIView.as_view(), name='book_list_create'),
     path('books/<uuid:pk>/', BookDetailAPIView.as_view(), name='book_detail'),
 ]
+
+# localhost/books/2026/?category=Python&year=2026
