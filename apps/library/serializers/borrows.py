@@ -44,13 +44,13 @@ class BorrowCreateSerializer(ModelSerializer):
 
     class Meta:
         model = BorrowModel
-        fields = BorrowModel._meta.get_fields() + ['days']
+        # fields = BorrowModel._meta.get_fields() + ['days']
 
-    def validate(self, data):
-        pass
-
-    def create(self, data):
-        pass
+    # def validate(self, data):
+    #     pass
+    #
+    # def create(self, data):
+    #     pass
 
 
 class BorrowUpdateSerializer(ModelSerializer):

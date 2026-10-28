@@ -26,7 +26,7 @@ class BookListCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BookModel
-        fields = ['title', 'category', 'pages', 'published_date']
+        fields = ['pk', 'title', 'category', 'pages', 'published_date']
 
     def create(self, validated_data):
         title_data = validated_data.pop('title').strip().upper()
@@ -42,7 +42,17 @@ class BookListCreateSerializer(serializers.ModelSerializer):
 
 
 class BookDetailSerializer(serializers.ModelSerializer):
+    genres = serializers.StringRelatedField(many=True, read_only=True)
+    category = serializers.StringRelatedField(read_only=True)
+
     class Meta:
         model = BookModel
-        fields = '__all__'
+        fields = ['id', 'title', 'category', 'page_count', 'published_date', 'genres']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not self.context.get('include_genres'):
+            data.pop('genres')
+        return data
+
 

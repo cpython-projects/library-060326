@@ -4,3 +4,5 @@ from .borrows import (
         BorrowCreateSerializer,
         BorrowUpdateSerializer
     )
+
+from .categories import CategorySerializer
