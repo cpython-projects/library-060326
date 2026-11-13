@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'apps.users.apps.UsersConfig',
 
     'drf_spectacular',
+    'apps.library_auth.apps.AuthConfig'
 ]
 
 MIDDLEWARE = [
@@ -101,7 +102,11 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'sql',
-
+        },
+        'app_console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'sql',
         },
         'sql_file': {
             'level': 'DEBUG',
@@ -115,19 +120,14 @@ LOGGING = {
 
     },
     'loggers': {
-        'django': {
-
-        },
-        'django.request': {
-
-        },
-        'django.template': {
-
-        },
         'django.db.backends': {
             'handlers': ['sql_file', 'console'],
             'level': 'DEBUG',
             'propagate': False,
+        },
+        'apps': {
+            'handlers': ['app_console'],
+            'level': 'INFO',
         }
     }
 }
@@ -155,7 +155,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/m',
-        'user': '100/m'
+        'user': '100/m',
+        'library_auth': '10/m',
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
@@ -170,6 +171,7 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True, # при refresh генерить новый refresh
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,
+    'CHECK_REVOKE_TOKEN': True,
 }
 
 
@@ -233,3 +235,36 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+DEFAULT_FROM_EMAIL = 'admin@example.com'
+
+LIBRARIANS_EMAILS = ['librarian_1@example.com', 'librarian_2@example.com']
+
+
+# MAILERS = {
+#     'default': {
+#         'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+#         'OPTIONS': {
+#             'host': 'smtp.qq.com',
+#             'port': 587,
+#             'username': '',
+#             'password': '',
+#         }
+#     }
+# }
+#
+# DEFAULT_FROM_EMAIL = ''
+
+
+TASKS = {
+    'default': {
+        'BACKEND': 'django.tasks.backends.immediate.ImmediateBackend'
+    }
+}
+
+
+
+
+
+
+

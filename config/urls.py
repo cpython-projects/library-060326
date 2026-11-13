@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/v1/name-examples/', include('apps.library.urls.urls_name_examples')),
     path('api/v1/germanlibrary/', include('apps.library.urls.urls_normal')),
 
-    # path('api/v1/obtain-auth-token/', obtain_auth_token, name='obtain_auth_token'),
+    # path('api/v1/obtain-library_auth-token/', obtain_auth_token, name='obtain_auth_token'),
     # path('api/v1/logout/', LogoutView.as_view(), name='logout'),
 
     path('api/v1/users/', include('apps.users.urls')),
@@ -40,6 +40,8 @@ urlpatterns = [
     path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/v1/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger_ui'),
     path('api/v1/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+
+    path('api/v1/auth/', include('apps.library_auth.urls')),
 ]
 
 
